@@ -69,6 +69,7 @@ return {
       servers = {
         -- pyright will be automatically installed with mason and loaded with lspconfig
         pyright = {},
+        asm_lsp = {},
       },
     },
   },
@@ -152,10 +153,6 @@ return {
     },
   },
 
-  -- for typescript, LazyVim also includes extra specs to properly setup lspconfig,
-  -- treesitter, mason and typescript.nvim. So instead of the above, you can use:
-  { import = "lazyvim.plugins.extras.lang.typescript" },
-
   -- add more treesitter parsers
   {
     "nvim-treesitter/nvim-treesitter",
@@ -202,32 +199,24 @@ return {
     "nvim-lualine/lualine.nvim",
     event = "VeryLazy",
     opts = function(_, opts)
+      -- Sanity check: print to :messages so we know it ran
+      vim.schedule(function() print("⏱️ lualine override loaded") end)
+
+      -- 1) Ensure opts.options exists, then override the theme:
+      opts.options = opts.options or {}
+      opts.options.theme = "catppuccin"
+
+      -- 2) Ensure the lualine_x section exists, then append your smile:
+      opts.sections = opts.sections or {}
+      opts.sections.lualine_x = opts.sections.lualine_x or {}
       table.insert(opts.sections.lualine_x, {
-        function()
-          return "😄"
-        end,
+        function() return "😄" end,
       })
+
+      -- 3) Return the modified opts so LazyVim applies them:
+      return opts
     end,
   },
-
-  -- or you can return new options to override all the defaults
-  {
-    "nvim-lualine/lualine.nvim",
-    event = "VeryLazy",
-    opts = function()
-      return {
-        --[[add your custom lualine config here]]
-      }
-    end,
-  },
-
-  -- use mini.starter instead of alpha
-  -- { import = "lazyvim.plugins.extras.ui.mini-starter" },
-
-  -- add jsonls and schemastore packages, and setup treesitter for json, json5 and jsonc
-  { import = "lazyvim.plugins.extras.lang.json" },
-
-  { import = "lazyvim.plugins.extras.ui.mini-animate" },
 
   -- add any tools you want to have installed below
   {
